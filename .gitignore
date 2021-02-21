@@ -1,1 +1,4 @@
 .vscode
+playground
+__pycache__
+logs-dir
