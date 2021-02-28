@@ -71,42 +71,53 @@ while m <= mMax:
             LHSConstraints = LHSConstraints + LHSConstraintsWithC
             RHSConstraints = RHSConstraints + RHSConstraintsWithC
             try:
-                opt = linprog(c=obj, A_ub=LHSConstraints, b_ub=RHSConstraints, A_eq=LHSEqConstraints, b_eq=RHSEqConstraints, bounds=bnd, method="revised simplex")
+                opt = linprog(c=obj, A_ub=LHSConstraints, b_ub=RHSConstraints, A_eq=LHSEqConstraints, b_eq=RHSEqConstraints, bounds=bnd)
             except:
                 if leafIdx == minLeafIdx or leafIdx % nonFeasibleMsgCnt == 0:
                     print('Idx: ' + str(leafIdx) + '. No feasible solution for current leaf. c: ' + str(c) + ', m: ' + str(m))
             else:
-                foundFeasibleSol = True
-                v1 = opt.x[0:m + 1]
-                v2 = opt.x[m+1:]
-                f1, f2, f1PlusF2, sw, q = calculateF1F2SWQ(v1, v2, m)
-                maxSWIdx = np.argmax(sw)
-                print('Idx: ' + str(leafIdx) + '. Feasible solution found.  c: ' + str(c) + ', m: ' + str(m))
-                f.write('Idx: ' + str(leafIdx) + '. Feasible solution found.  c: ' + str(c) + ', m: ' + str(m)+ '\n')
-                print('v1: ' + str(v1))
-                f.write('v1: ' + str(v1)+ '\n')
-                print('v2: ' + str(v2))
-                f.write('v2: ' + str(v2)+ '\n')
-                print('sw: ' + str(sw))
-                f.write('sw: ' + str(sw)+ '\n')
-                print('q: ' + str(q))
-                f.write('q: ' + str(q)+ '\n')
-                print('sw max idx (k) : ' + str(maxSWIdx) + ', max sw: ' + str(sw[maxSWIdx]) + ', q: ' + str(q[maxSWIdx]))
-                f.write('sw max idx (k) : ' + str(maxSWIdx) + ', max sw: ' + str(sw[maxSWIdx]) + ', q: ' + str(q[maxSWIdx])+ '\n')
-                print('f1: ' + str(f1))
-                f.write('f1: ' + str(f1)+ '\n')
-                print('f2: ' + str(f2))
-                f.write('f2: ' + str(f2)+ '\n')
-                print('f1 + f2: ' + str(f1PlusF2))
-                f.write('f1 + f2: ' + str(f1PlusF2)+ '\n')
-                if plotBool:
-                    plt.plot(sw, label='v1[m-k] + v2[k]')
-                    plt.plot(f1PlusF2, label='f1[k] + f2[k]')
-                    plt.xlabel('k')
-                    plt.legend()
-                    plt.savefig(logsDir + 'm_' + str(m) + '_figs/' + 'm_' + str(m) + '_c_' + str(c) + '.png')
-                    plt.close()
-                break
+                if opt.status == 0 and opt.success:
+                    foundFeasibleSol = True
+                    v1 = opt.x[0:m + 1]
+                    v2 = opt.x[m+1:]
+                    f1, f2, f1PlusF2, sw, q = calculateF1F2SWQ(v1, v2, m)
+                    maxSWIdx = np.argmax(sw)
+                    print('Idx: ' + str(leafIdx) + '. Feasible solution found.  c: ' + str(c) + ', m: ' + str(m))
+                    f.write('Idx: ' + str(leafIdx) + '. Feasible solution found.  c: ' + str(c) + ', m: ' + str(m)+ '\n')
+                    print('v1: ' + str(v1))
+                    f.write('v1: ' + str(v1)+ '\n')
+                    print('v2: ' + str(v2))
+                    f.write('v2: ' + str(v2)+ '\n')
+                    print('sw: ' + str(sw))
+                    f.write('sw: ' + str(sw)+ '\n')
+                    print('q: ' + str(q))
+                    f.write('q: ' + str(q)+ '\n')
+                    print('sw max idx (k) : ' + str(maxSWIdx) + ', max sw: ' + str(sw[maxSWIdx]) + ', q: ' + str(q[maxSWIdx]))
+                    f.write('sw max idx (k) : ' + str(maxSWIdx) + ', max sw: ' + str(sw[maxSWIdx]) + ', q: ' + str(q[maxSWIdx])+ '\n')
+                    print('f1: ' + str(f1))
+                    f.write('f1: ' + str(f1)+ '\n')
+                    print('f2: ' + str(f2))
+                    f.write('f2: ' + str(f2)+ '\n')
+                    print('f1 + f2: ' + str(f1PlusF2))
+                    f.write('f1 + f2: ' + str(f1PlusF2)+ '\n')
+                    if plotBool:
+                        plt.plot(sw, label='v1[m-k] + v2[k]')
+                        plt.plot(f1PlusF2, label='f1[k] + f2[k]')
+                        plt.xlabel('k')
+                        plt.legend()
+                        plt.savefig(logsDir + 'm_' + str(m) + '_figs/' + 'm_' + str(m) + '_c_' + str(c) + 'VAndF.png')
+                        plt.close()
+                        v1Add = turnToAdditive(v1)
+                        v2Add = turnToAdditive(v2)
+                        plt.plot(v1, label='v1')
+                        plt.plot(v1Add, label='v1 Additive bound')
+                        plt.plot(v2, label='v2')
+                        plt.plot(v2Add, label='v2 Additive bound')
+                        plt.xlabel('k')
+                        plt.legend()
+                        plt.savefig(logsDir + 'm_' + str(m) + '_figs/' + 'm_' + str(m) + '_c_' + str(c) + 'V1V2.png')
+                        plt.close()
+                    break
 
         if foundFeasibleSol:
             minLeafIdx = leafIdx

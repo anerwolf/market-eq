@@ -34,3 +34,10 @@ def addCToConstraints(LHSConstraintsSym, RHSConstraintsSym, c, m):
         RHSConstraintsWithC.append(RHSConstraintsSym[constraintIdx])
     
     return LHSConstraintsWithC, RHSConstraintsWithC
+
+def turnToAdditive(v):
+    vAdd = [0] * len(v)
+    vAdd[1] = v[1]
+    for i in range(2, len(v)):
+        vAdd[i] = vAdd[i - 1] + v[1]
+    return vAdd

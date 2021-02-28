@@ -91,8 +91,8 @@ class treeNode:
 
     def createSAConstarints(self):
         v2StartIdx = self.m + 1
-        for i in range(1, self.m):
-            for j in range(1, min(i + 1, self.m - i + 1)):
+        for i in range(1, self.m + 1):
+            for j in range(1, self.m - i + 1):
                 constraint = list([0] * (2 * (self.m + 1)))
                 constraint[i + j] = 1
                 if i == j:
@@ -114,7 +114,7 @@ class treeNode:
 
     def createMonotoneConstraints(self):
         v2StartIdx = self.m + 1
-        for i in range(1, self.m):
+        for i in range(0, self.m):
             constraint = list([0] * (2 * (self.m + 1)))
             constraint[i] = 1
             constraint[i + 1] = -1
